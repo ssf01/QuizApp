@@ -59,7 +59,7 @@ window.QuizApp || (window.QuizApp = {});
                 question: 'var x = 15, y = 10; <br />console.log(x++-++y+x++);',
                 type: 'radio',
                 options: [20, 25, 4, 10],
-                answer: 'false'
+                answer: '20'
             },
             11: {
                 question: 'var x = "99", y="101"; <br />console.log (x < y);',
@@ -86,14 +86,15 @@ window.QuizApp || (window.QuizApp = {});
                   <a class="btn startQuizApp"  href="#">Start<i class="icon-arrow-right"></i></a>\
                 </li>\
                 '],
+        result = 0,
+        score = 0,
         activeTab = 0;
-
-
+        //za sad su izbaceni napolje jer mi uvek loguje undefined kad ih koristim u nekoj funkciji
+        //a ako ih koristim u funkciji kao this.score (npr.) onda kreira nov koji bude undefined ponovo i poebe se
 
     QuizApp.init = function () {
-        this.result = 0;
+        
         this.questions_no = _.size(Questions);
-        this.test = console.log(this);
         for ( var prop in Questions) {
             tabs.push(this.getPanelHTML(Questions[prop], prop, Questions.length));
         }
@@ -102,7 +103,6 @@ window.QuizApp || (window.QuizApp = {});
                     <a class="btn repeat"  href="#">Ponovi Kviz<i class="icon-repeat"></i></a>\
                 </li>');
         this.showTab(activeTab);
-        QuizApp.changeTab();
     };
 
     QuizApp.getPanelHTML = function (data, prop, len) {
@@ -124,7 +124,6 @@ window.QuizApp || (window.QuizApp = {});
         } else {
             var optionsLenght = data.options.length,
                 print = '';
-
             for (; i < optionsLenght; i++) {
                 print += '<label><input type="' +dataType+ '" name="' +prop+ '" value="' +data.options[i]+ '" />' +data.options[i]+ '</label>';
             }
@@ -133,14 +132,27 @@ window.QuizApp || (window.QuizApp = {});
     };
 
     QuizApp.showTab = function (index) {
-        $('.QuizApp').html(tabs[activeTab]);
+        $('.QuizApp').html(tabs[index]);
         //fix, poziv da na novoispisani html aktivira click evente.
         this.changeTab();
     };
 
+    QuizApp.showResult = function (res) {
+        score = ( res * 100)/Questions.length ;
+    };
+
+    QuizApp.checkAnswer = function (answer, tab) {
+
+        if (answer === Questions[tab].answer) {
+            result++;
+        } else {
+            result--;
+        }
+    };
+
     QuizApp.changeTab = function () {
         $('.startQuizApp').on('click', function() {
-            activeTab++;
+            activeTab = 1;
             QuizApp.showTab(activeTab);
 
         });
@@ -150,25 +162,33 @@ window.QuizApp || (window.QuizApp = {});
         $('.next_btn').on('click', function() {
             if (QuizApp.validate()) {
                 activeTab++;
-                QuizApp.showTab(activeTab);
-            } else {
-                // Ovo bi moglo u validaciju da ide, zar ne?
-                // Izgubis taman taj else
-                $('.alert').remove();
-                $('<p class="alert alert-error">Please select some answer</p>').insertAfter('.questions');
+                QuizApp.showTab(activeTab);                
             }
         });
         $('.back_btn').on('click', function() {
             activeTab--;
+            result--;
             QuizApp.showTab(activeTab);
         });
     };
 
     QuizApp.validate = function (index) {
         var isSelected = $('.QuizApp').find('input').is(':checked'),
+            selectedVal = $('.QuizApp').find('input:checked').val(),
             inputText = $('.QuizApp').find('input[type="text"]').val();
 
-        return isSelected || inputText;
+        if (isSelected) {
+            //activeTab  prosledjujemo da bi znali iz objekta koji tacan odgovor da poredimo
+            this.checkAnswer(selectedVal, activeTab);
+            return true;
+        } else if (inputText) {
+            this.checkAnswer(inputText, activeTab);
+            return true;
+        } else {
+            $('.alert').remove();
+            $('<p class="alert alert-error">Please select some answer</p>').insertAfter('.questions');
+            return false;
+        }
     };
 
     $(window.document).ready($.proxy(QuizApp.init, QuizApp));
