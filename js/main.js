@@ -19,7 +19,7 @@ window.QuizApp || (window.QuizApp = {});
                 options: [5, 15, 510, 50],
                 answer: '510'
             },
-            4: {
+        /*    4: {
                 question: 'var x="5", y=10; <br /> console.log(+x+y);',
                 type: 'radio',
                 options: [5, 15, 510, 50],
@@ -78,7 +78,7 @@ window.QuizApp || (window.QuizApp = {});
                 type: 'radio',
                 options: ['true', 'false', 'undefined', 'null'],
                 answer: 'true'
-            }
+            }*/
         },
         tabs = ['<li>\
                   <p>Unesite vas e-mail</p>\
@@ -96,7 +96,7 @@ window.QuizApp || (window.QuizApp = {});
         
         this.questions_no = _.size(Questions);
         for ( var prop in Questions) {
-            tabs.push(this.getPanelHTML(Questions[prop], prop, Questions.length));
+            tabs.push(this.getPanelHTML(Questions[prop], prop));
         }
         tabs.push('<li>\
                     <p class="odgovori">Odgovori:</p>\
@@ -105,7 +105,7 @@ window.QuizApp || (window.QuizApp = {});
         this.showTab(activeTab);
     };
 
-    QuizApp.getPanelHTML = function (data, prop, len) {
+    QuizApp.getPanelHTML = function (data, prop) {
 
         return '<li>\
                     <small>Question: ' + prop + '</small>\
@@ -113,6 +113,7 @@ window.QuizApp || (window.QuizApp = {});
                     <div class="questions">'+this.getInputHTML(data, prop)+'</div>\
                     <a class="btn next_btn" href="#">next<i class="icon-arrow-right"></i></a>\
                     <a class="btn back_btn" href="#"><i class="icon-arrow-left"></i>back</a>\
+                    <a class="btn finish" href="#">F<i class="icon-arrow-right"></i></a>\
                 </li>';
     };
 
@@ -138,7 +139,8 @@ window.QuizApp || (window.QuizApp = {});
     };
 
     QuizApp.showResult = function (res) {
-        score = ( res * 100)/Questions.length ;
+        score = parseFloat(Math.round((res * 100/this.questions_no) * 100) / 100).toFixed(2); ;
+        $('<p class="score">rezultat testa koji ste osvojili je ' +score+ '%</p>').insertAfter('.odgovori');
     };
 
     QuizApp.checkAnswer = function (answer, tab) {
@@ -154,13 +156,12 @@ window.QuizApp || (window.QuizApp = {});
         $('.startQuizApp').on('click', function() {
             activeTab = 1;
             QuizApp.showTab(activeTab);
-
         });
 
         // Razlika izmedju prev i next je samo u ++ i --
         // mozda bi mogao da to nekako drugacije napises - da imas samo jednu funckiju, hmm ?
         $('.next_btn').on('click', function() {
-            if (QuizApp.validate()) {
+            if (QuizApp.validate(activeTab)) {
                 activeTab++;
                 QuizApp.showTab(activeTab);                
             }
@@ -169,6 +170,13 @@ window.QuizApp || (window.QuizApp = {});
             activeTab--;
             result--;
             QuizApp.showTab(activeTab);
+        });
+        $('.finish').on('click', function() {
+            if (QuizApp.validate(activeTab)) {
+                activeTab++;
+                QuizApp.showTab(activeTab);
+                QuizApp.showResult(result);                
+            }
         });
     };
 
@@ -179,10 +187,10 @@ window.QuizApp || (window.QuizApp = {});
 
         if (isSelected) {
             //activeTab  prosledjujemo da bi znali iz objekta koji tacan odgovor da poredimo
-            this.checkAnswer(selectedVal, activeTab);
+            this.checkAnswer(selectedVal, index);
             return true;
         } else if (inputText) {
-            this.checkAnswer(inputText, activeTab);
+            this.checkAnswer(inputText, index);
             return true;
         } else {
             $('.alert').remove();
