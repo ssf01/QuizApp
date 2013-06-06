@@ -1,15 +1,7 @@
 
 .holder { margin-top: 30px;}
 .unstyled { border: 1px solid #888888; min-height: 300px; padding: 20px;}
-	/*.unstyled li:first-child { text-align: center;}
-		.unstyled li:first-child .questionNumber,
-		.unstyled li:last-child .questionNumber { display: none;}
-    li { display: none;}
-    li.active { display: block;}
-
-    .active i { margin: 0 4px;}*/
-
-    .btn { margin: 10px; width: 90px;}
+.btn { margin: 10px; width: 90px;}
     
 .wrongAHolder { display: inline-block; position: relative; }
     .correctA { position: absolute; background: #fff; border: 1px solid black; border-radius: 5px; padding: 5px; display: none; z-index: 1;
@@ -17,4 +9,5 @@ text-align: center; top: 0;}
 
 .back_btn { float: left; overflow: hidden;}
 .next_btn { float: right; overflow: hidden;}
-.questionNumber { float: right;}
+
+.QuizApp small { float: right;}

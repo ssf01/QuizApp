@@ -93,7 +93,6 @@ window.QuizApp || (window.QuizApp = {});
         //a ako ih koristim u funkciji kao this.score (npr.) onda kreira nov koji bude undefined ponovo i poebe se
 
     QuizApp.init = function () {
-        
         this.questions_no = _.size(Questions);
         for ( var prop in Questions) {
             tabs.push(this.getPanelHTML(Questions[prop], prop));
@@ -106,14 +105,17 @@ window.QuizApp || (window.QuizApp = {});
     };
 
     QuizApp.getPanelHTML = function (data, prop) {
+        var lastQuestion = 'next_btn';
 
+        if ( +prop === this.questions_no ) {
+            lastQuestion = 'finish';
+        }
         return '<li>\
-                    <small>Question: ' + prop + '</small>\
+                    <small>Question: ' + prop + '/' +this.questions_no+ '</small>\
                     <p>' + data.question + '</p>\
                     <div class="questions">'+this.getInputHTML(data, prop)+'</div>\
-                    <a class="btn next_btn" href="#">next<i class="icon-arrow-right"></i></a>\
+                    <a class="btn ' +lastQuestion+'" href="#">next<i class="icon-arrow-right"></i></a>\
                     <a class="btn back_btn" href="#"><i class="icon-arrow-left"></i>back</a>\
-                    <a class="btn finish" href="#">F<i class="icon-arrow-right"></i></a>\
                 </li>';
     };
 
@@ -144,7 +146,6 @@ window.QuizApp || (window.QuizApp = {});
     };
 
     QuizApp.checkAnswer = function (answer, tab) {
-
         if (answer === Questions[tab].answer) {
             result++;
         } else {
