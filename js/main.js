@@ -79,25 +79,26 @@ window.QuizApp || (window.QuizApp = {});
                 options: ['true', 'false', 'undefined', 'null'],
                 answer: 'true'
             }*/
-        },
-        tabs = ['<li>\
-                  <p>Unesite vas e-mail</p>\
-                  <input type="text" class="email" placeholder="E-mail"/>\
-                  <a class="btn startQuizApp"  href="#">Start<i class="icon-arrow-right"></i></a>\
-                </li>\
-                '],
-        result = 0,
-        score = 0,
-        activeTab = 0;
+        };
         //za sad su izbaceni napolje jer mi uvek loguje undefined kad ih koristim u nekoj funkciji
         //a ako ih koristim u funkciji kao this.score (npr.) onda kreira nov koji bude undefined ponovo i poebe se
 
     QuizApp.init = function () {
         this.questions_no = _.size(Questions);
+        this.result = {};
+        this.score = 0;
+        this.activeTab = 0;
+        this.tabs = ['<li>\
+                  <p>Unesite vas e-mail</p>\
+                  <input type="text" class="email" placeholder="E-mail"/>\
+                  <a class="btn startQuizApp"  href="#">Start<i class="icon-arrow-right"></i></a>\
+                </li>\
+                '];
+
         for ( var prop in Questions) {
-            tabs.push(this.getPanelHTML(Questions[prop], prop));
+            this.tabs.push(this.getPanelHTML(Questions[prop], prop));
         }
-        tabs.push('<li>\
+        this.tabs.push('<li>\
                     <p class="odgovori">Odgovori:</p>\
                     <a class="btn repeat"  href="#">Ponovi Kviz<i class="icon-repeat"></i></a>\
                 </li>');
@@ -135,7 +136,7 @@ window.QuizApp || (window.QuizApp = {});
     };
 
     QuizApp.showTab = function (index) {
-        $('.QuizApp').html(tabs[index]);
+        $('.QuizApp').html(this.tabs[index]);
         //fix, poziv da na novoispisani html aktivira click evente.
         this.changeTab();
     };
@@ -146,11 +147,14 @@ window.QuizApp || (window.QuizApp = {});
     };
 
     QuizApp.checkAnswer = function (answer, tab) {
-        if (answer === Questions[tab].answer) {
-            result++;
-        } else {
-            result--;
+        console.log('CHECK ANSWER', answer, tab);
+
+        this.result[tab] = {
+            correct: answer === Questions[tab].answer,
+            answer: answer
         }
+
+        return isCorrect;
     };
 
     QuizApp.changeTab = function () {
@@ -164,7 +168,7 @@ window.QuizApp || (window.QuizApp = {});
         $('.next_btn').on('click', function() {
             if (QuizApp.validate(activeTab)) {
                 activeTab++;
-                QuizApp.showTab(activeTab);                
+                QuizApp.showTab(activeTab);
             }
         });
         $('.back_btn').on('click', function() {
@@ -176,7 +180,7 @@ window.QuizApp || (window.QuizApp = {});
             if (QuizApp.validate(activeTab)) {
                 activeTab++;
                 QuizApp.showTab(activeTab);
-                QuizApp.showResult(result);                
+                QuizApp.showResult(result);
             }
         });
     };
