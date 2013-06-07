@@ -102,7 +102,7 @@ window.QuizApp || (window.QuizApp = {});
                     <p class="odgovori">Odgovori:</p>\
                     <a class="btn repeat"  href="#">Ponovi Kviz<i class="icon-repeat"></i></a>\
                 </li>');
-        this.showTab(activeTab);
+        this.showTab(this.activeTab);
     };
 
     QuizApp.getPanelHTML = function (data, prop) {
@@ -142,45 +142,66 @@ window.QuizApp || (window.QuizApp = {});
     };
 
     QuizApp.showResult = function (res) {
-        score = parseFloat(Math.round((res * 100/this.questions_no) * 100) / 100).toFixed(2); ;
-        $('<p class="score">rezultat testa koji ste osvojili je ' +score+ '%</p>').insertAfter('.odgovori');
+        var checkScore = 0,
+            falseAns = 0,
+            print = '';
+
+        for ( var prop in res) {
+            if(res[prop].correct) {
+                checkScore++;
+                print += '<p class="btn btn-success"><i class="icon-ok"></i>' +prop+ ': ' +res[prop].answer+ '</p>';
+            } else {
+                checkScore--;
+                print += '<div class="wrongAHolder"><p class="btn btn-danger"><i class="icon-remove"></i>' +prop+ ': ' +res[prop].answer+ '</p><p class="correctA">Correct answer is: ' +Questions[prop].answer+ '  </p> </div>';
+            }
+        }
+        this.score = parseFloat(Math.round((checkScore * 100/this.questions_no) * 100) / 100).toFixed(2); ;
+        $('<p class="score">rezultat testa koji ste osvojili je ' +this.score+ '%</p><div class="ansers" />').insertAfter('.odgovori');
+        $('.ansers').html(print);
+
+        $('.wrongAHolder').hover(function() {
+            $(this).find('.correctA').show();
+
+        }, function(){
+            $(this).find('.correctA').hide();
+
+        });
     };
 
     QuizApp.checkAnswer = function (answer, tab) {
-        console.log('CHECK ANSWER', answer, tab);
-
         this.result[tab] = {
             correct: answer === Questions[tab].answer,
             answer: answer
         }
-
-        return isCorrect;
+        //return isCorrect;
     };
 
     QuizApp.changeTab = function () {
+        var self = this;
+
         $('.startQuizApp').on('click', function() {
-            activeTab = 1;
-            QuizApp.showTab(activeTab);
+            self.activeTab = 1;
+            self.showTab(self.activeTab);
         });
 
         // Razlika izmedju prev i next je samo u ++ i --
         // mozda bi mogao da to nekako drugacije napises - da imas samo jednu funckiju, hmm ?
         $('.next_btn').on('click', function() {
-            if (QuizApp.validate(activeTab)) {
-                activeTab++;
-                QuizApp.showTab(activeTab);
+            if (QuizApp.validate(self.activeTab)) {
+                self.activeTab++;
+                self.showTab(self.activeTab);
             }
         });
         $('.back_btn').on('click', function() {
-            activeTab--;
-            result--;
-            QuizApp.showTab(activeTab);
+            self.activeTab--;
+            //self.result--;
+            self.showTab(self.activeTab);
         });
         $('.finish').on('click', function() {
-            if (QuizApp.validate(activeTab)) {
-                activeTab++;
-                QuizApp.showTab(activeTab);
-                QuizApp.showResult(result);
+            if (QuizApp.validate(self.activeTab)) {
+                self.activeTab++;
+                self.showTab(self.activeTab);
+                self.showResult(self.result);
             }
         });
     };
