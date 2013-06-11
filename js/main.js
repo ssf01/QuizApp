@@ -19,11 +19,11 @@ window.QuizApp || (window.QuizApp = {});
                 options: [5, 15, 510, 50],
                 answer: '510'
             },
-        /*    4: {
+            /*4: {
                 question: 'var x="5", y=10; <br /> console.log(+x+y);',
-                type: 'radio',
+                type: 'checkbox',
                 options: [5, 15, 510, 50],
-                answer: '510'
+                answer: '15'
             },
             5: {
                 question: '(function() { <br /> var kittySays = "Meow";})();<br /> console.log(kittySays);',
@@ -87,6 +87,7 @@ window.QuizApp || (window.QuizApp = {});
         this.questions_no = _.size(Questions);
         this.result = {};
         this.score = 0;
+        this.email = '';
         this.activeTab = 0;
         this.tabs = ['<li>\
                   <p>Unesite vas e-mail</p>\
@@ -156,15 +157,13 @@ window.QuizApp || (window.QuizApp = {});
             }
         }
         this.score = parseFloat(Math.round((checkScore * 100/this.questions_no) * 100) / 100).toFixed(2); ;
-        $('<p class="score">rezultat testa koji ste osvojili je ' +this.score+ '%</p><div class="ansers" />').insertAfter('.odgovori');
+        $('<p class="score">Rezultat testa koji je osvojio ' +this.email+ ' je: ' +this.score+ '%</p><div class="ansers" />').insertAfter('.odgovori');
         $('.ansers').html(print);
 
         $('.wrongAHolder').hover(function() {
             $(this).find('.correctA').show();
-
         }, function(){
             $(this).find('.correctA').hide();
-
         });
     };
 
@@ -181,6 +180,7 @@ window.QuizApp || (window.QuizApp = {});
 
         $('.startQuizApp').on('click', function() {
             self.activeTab = 1;
+            self.email = $('.email').val();
             self.showTab(self.activeTab);
         });
 
@@ -198,7 +198,7 @@ window.QuizApp || (window.QuizApp = {});
             self.showTab(self.activeTab);
         });
         $('.finish').on('click', function() {
-            if (QuizApp.validate(self.activeTab)) {
+            if (self.validate(self.activeTab)) {
                 self.activeTab++;
                 self.showTab(self.activeTab);
                 self.showResult(self.result);
@@ -208,12 +208,20 @@ window.QuizApp || (window.QuizApp = {});
 
     QuizApp.validate = function (index) {
         var isSelected = $('.QuizApp').find('input').is(':checked'),
-            selectedVal = $('.QuizApp').find('input:checked').val(),
-            inputText = $('.QuizApp').find('input[type="text"]').val();
+            selectedVal = [],
+            inputText = $('.QuizApp').find('input[type="text"]').val(),
+            i = 0;
+
+         $('.QuizApp').find('input:checked').each(function() {
+            selectedVal.push($(this).val());
+        });
+
 
         if (isSelected) {
             //activeTab  prosledjujemo da bi znali iz objekta koji tacan odgovor da poredimo
-            this.checkAnswer(selectedVal, index);
+            for (; i < selectedVal.length; i++){
+                this.checkAnswer(selectedVal[i], index);
+            }
             return true;
         } else if (inputText) {
             this.checkAnswer(inputText, index);
