@@ -167,7 +167,7 @@ window.QuizApp || (window.QuizApp = {});
         });
     };
 
-    QuizApp.checkAnswer = function (answer, tab) {
+    QuizApp.checkAnswer = function (answer, tab, len) {
         this.result[tab] = {
             correct: answer === Questions[tab].answer,
             answer: answer
@@ -181,13 +181,16 @@ window.QuizApp || (window.QuizApp = {});
         $('.startQuizApp').on('click', function() {
             self.activeTab = 1;
             self.email = $('.email').val();
-            self.showTab(self.activeTab);
+            if (self.validateEmail(self.email)) {
+                self.showTab(self.activeTab);
+            }
+            
         });
 
         // Razlika izmedju prev i next je samo u ++ i --
         // mozda bi mogao da to nekako drugacije napises - da imas samo jednu funckiju, hmm ?
         $('.next_btn').on('click', function() {
-            if (QuizApp.validate(self.activeTab)) {
+            if (self.validate(self.activeTab)) {
                 self.activeTab++;
                 self.showTab(self.activeTab);
             }
@@ -209,27 +212,35 @@ window.QuizApp || (window.QuizApp = {});
     QuizApp.validate = function (index) {
         var isSelected = $('.QuizApp').find('input').is(':checked'),
             selectedVal = [],
-            inputText = $('.QuizApp').find('input[type="text"]').val(),
-            i = 0;
+            inputText = $.trim($('.QuizApp').find('input[type="text"]').val());
 
          $('.QuizApp').find('input:checked').each(function() {
             selectedVal.push($(this).val());
         });
 
-
         if (isSelected) {
             //activeTab  prosledjujemo da bi znali iz objekta koji tacan odgovor da poredimo
-            for (; i < selectedVal.length; i++){
-                this.checkAnswer(selectedVal[i], index);
+            for (var i = 0, j = selectedVal.length; i < j; i++) {
+                this.checkAnswer(selectedVal[i], index, j);
             }
             return true;
         } else if (inputText) {
-            this.checkAnswer(inputText, index);
+            this.checkAnswer(inputText, index, 1);
             return true;
         } else {
             $('.alert').remove();
-            $('<p class="alert alert-error">Please select some answer</p>').insertAfter('.questions');
+            $('<p class="alert alert-error">Please select/write some answer</p>').insertAfter('.questions');
             return false;
+        }
+    };
+    QuizApp.validateEmail = function (index) {
+        var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;  
+        if (!emailPattern.test($.trim(index))) {
+            $('.alert').remove();
+            $('<p class="alert alert-error">Please enter a valid email</p>').insertBefore('.email');
+            return false
+        } else {
+            return true
         }
     };
 
