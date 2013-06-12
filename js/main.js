@@ -162,7 +162,7 @@ window.QuizApp || (window.QuizApp = {});
 
         $('.wrongAHolder').hover(function() {
             $(this).find('.correctA').show();
-        }, function(){
+        }, function() {
             $(this).find('.correctA').hide();
         });
     };
@@ -233,9 +233,9 @@ window.QuizApp || (window.QuizApp = {});
             return false;
         }
     };
-    QuizApp.validateEmail = function (index) {
+    QuizApp.validateEmail = function (email) {
         var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;  
-        if (!emailPattern.test($.trim(index))) {
+        if (!emailPattern.test($.trim(email))) {
             $('.alert').remove();
             $('<p class="alert alert-error">Please enter a valid email</p>').insertBefore('.email');
             return false
