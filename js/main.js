@@ -19,13 +19,13 @@ window.QuizApp || (window.QuizApp = {});
                 options: [5, 15, 510, 50],
                 answer: '510'
             },
-            /*4: {
+            4: {
                 question: 'var x="5", y=10; <br /> console.log(+x+y);',
                 type: 'checkbox',
                 options: [5, 15, 510, 50],
                 answer: '15'
             },
-            5: {
+            /*5: {
                 question: '(function() { <br /> var kittySays = "Meow";})();<br /> console.log(kittySays);',
                 type: 'radio',
                 options: ['Meow', 'Error'],
@@ -148,12 +148,28 @@ window.QuizApp || (window.QuizApp = {});
             print = '';
 
         for ( var prop in res) {
-            if(res[prop].correct) {
-                checkScore++;
-                print += '<p class="btn btn-success"><i class="icon-ok"></i>' +prop+ ': ' +res[prop].answer+ '</p>';
+            var ansersLength = res[prop].multipleAnswer.length,
+                i = 0;
+            if (ansersLength === 1) {
+                if (res[prop].correct) {
+                    checkScore++;
+                    print += '<p class="btn btn-success"><i class="icon-ok"></i>' +prop+ ': ' +res[prop].multipleAnswer+ '</p>';
+                } else {
+                    checkScore--;
+                    print += '<div class="wrongAHolder"><p class="btn btn-danger"><i class="icon-remove"></i>' +prop+ ': ' +res[prop].multipleAnswer+ '</p><p class="correctA">Correct answer is: ' +Questions[prop].answer+ '  </p> </div>';
+                }
             } else {
-                checkScore--;
-                print += '<div class="wrongAHolder"><p class="btn btn-danger"><i class="icon-remove"></i>' +prop+ ': ' +res[prop].answer+ '</p><p class="correctA">Correct answer is: ' +Questions[prop].answer+ '  </p> </div>';
+                for (; i < ansersLength; i++){
+                    if (res[prop].multipleAnswer[i] === Questions[prop].answer) {
+                        checkScore++;
+                        print += '<p class="btn btn-success"><i class="icon-ok"></i>' +prop+ ': ' +res[prop].multipleAnswer[i]+ '</p>';
+                    }
+                    else {
+                        checkScore--;
+                        print += '<div class="wrongAHolder"><p class="btn btn-danger"><i class="icon-remove"></i>' +prop+ ': ' +res[prop].multipleAnswer[i]+ '</p><p class="correctA">Correct answer is: ' +Questions[prop].answer+ '  </p> </div>';
+                    }           
+                }
+
             }
         }
         this.score = parseFloat(Math.round((checkScore * 100/this.questions_no) * 100) / 100).toFixed(2); ;
@@ -167,10 +183,27 @@ window.QuizApp || (window.QuizApp = {});
         });
     };
 
-    QuizApp.checkAnswer = function (answer, tab, len) {
-        this.result[tab] = {
-            correct: answer === Questions[tab].answer,
-            answer: answer
+    QuizApp.checkAnswer = function (answer, tab) {
+        var len = answer.length,
+            i = 0,
+            pera = [],
+            isCorrect = false;
+
+        if ( len === 1 ) {
+            this.result[tab] = {
+                correct: answer[0] === Questions[tab].answer,
+                multipleAnswer: answer
+            }
+        } else {
+            for(; i < len; i++) {
+                if(answer[i] === Questions[tab].answer) {
+                    isCorrect = true;
+                }
+            }
+            this.result[tab] = {
+                correct: isCorrect,
+                multipleAnswer: answer
+            }
         }
         //return isCorrect;
     };
@@ -220,12 +253,11 @@ window.QuizApp || (window.QuizApp = {});
 
         if (isSelected) {
             //activeTab  prosledjujemo da bi znali iz objekta koji tacan odgovor da poredimo
-            for (var i = 0, j = selectedVal.length; i < j; i++) {
-                this.checkAnswer(selectedVal[i], index, j);
-            }
+            this.checkAnswer(selectedVal, index);
             return true;
         } else if (inputText) {
-            this.checkAnswer(inputText, index, 1);
+            selectedVal.push(inputText);
+            this.checkAnswer(selectedVal, index);
             return true;
         } else {
             $('.alert').remove();
@@ -233,15 +265,16 @@ window.QuizApp || (window.QuizApp = {});
             return false;
         }
     };
+
     QuizApp.validateEmail = function (email) {
-        var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;  
-        if (!emailPattern.test($.trim(email))) {
+        var rEmailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+            isValid = rEmailPattern.test($.trim(email));
+
+        if (!isValid) {
             $('.alert').remove();
             $('<p class="alert alert-error">Please enter a valid email</p>').insertBefore('.email');
-            return false
-        } else {
-            return true
         }
+        return isValid;
     };
 
     $(window.document).ready($.proxy(QuizApp.init, QuizApp));
