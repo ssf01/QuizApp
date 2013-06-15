@@ -25,7 +25,7 @@ window.QuizApp || (window.QuizApp = {});
                 options: [5, 15, 510, 50],
                 answer: '15'
             },
-            /*5: {
+            5: {
                 question: '(function() { <br /> var kittySays = "Meow";})();<br /> console.log(kittySays);',
                 type: 'radio',
                 options: ['Meow', 'Error'],
@@ -78,7 +78,7 @@ window.QuizApp || (window.QuizApp = {});
                 type: 'radio',
                 options: ['true', 'false', 'undefined', 'null'],
                 answer: 'true'
-            }*/
+            }
         };
         //za sad su izbaceni napolje jer mi uvek loguje undefined kad ih koristim u nekoj funkciji
         //a ako ih koristim u funkciji kao this.score (npr.) onda kreira nov koji bude undefined ponovo i poebe se
@@ -145,7 +145,8 @@ window.QuizApp || (window.QuizApp = {});
     QuizApp.showResult = function (res) {
         var checkScore = 0,
             falseAns = 0,
-            print = '';
+            print = '',
+            self = this;
 
         for ( var prop in res) {
             var ansersLength = res[prop].multipleAnswer.length,
@@ -181,6 +182,9 @@ window.QuizApp || (window.QuizApp = {});
         }, function() {
             $(this).find('.correctA').hide();
         });
+        $('.repeat').on('click', function() {
+            self.init();
+        })
     };
 
     QuizApp.checkAnswer = function (answer, tab) {
